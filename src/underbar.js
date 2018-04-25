@@ -184,16 +184,34 @@
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
     
-  //   _.each(collection, function(element) {
-  //     if (accumulator === undefined) {
-  //       accumulator = element;
-  //     }
-  //     var result = iterator(accumulator, element) {
-  //       accumulator + element;
-  //     }
-      
-  //   return result;
+    var noArgument = arguments.length < 3;
+
+    _.each(collection, function(element) {
+      if (noArgument) {
+        accumulator = element;
+        noArgument = false;
+      } else {
+        accumulator = iterator(accumulator, element);
+      }
+    });
+
+    return accumulator;
   };
+
+
+  //   for (var i = 0; i < collection.length; i++) {
+  //     if (iterator === undefined) {
+        
+  //     }
+  //     if (accumulator === undefined) {
+  //       accumulator = collection[i];
+  //       i++;
+  //     }
+  //     accumulator = iterator(accumulator, collection[i]);
+  //   }
+    
+  //   return accumulator;
+  // };
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
@@ -211,15 +229,38 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+
+    return _.reduce(collection, function(acc, item) {
+      if (iterator === undefined) {
+        iterator = function(item) {
+          return item === true;
+        };
+      }
+      if (!iterator(item)) {
+        return false;
+      }
+      return acc;
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    return _.reduce(collection, function(acc, item) {
+      if (iterator === undefined) {
+        iterator = function(item) {
+          return item === true;
+        };
+      }
+      if (iterator(item)) {
+        return true;
+      }
+      return acc;
+    }, false);
   };
 
-
+    
   /**
    * OBJECTS
    * =======
@@ -239,11 +280,36 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    // var objects = arguments
+
+    // _.reduce(arguments, function(acc, item) {
+    //   for (var key in item) {
+    //     acc[key] = item[key];
+    //   }
+
+    //   return acc;
+    // }, {});
+    var newObj = {};
+    for (var i = 0; i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        newObj[key] = arguments[i][key];
+      }
+    }
+    return newObj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+
+    for (var i = 0; i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        if (!(obj.hasOwnProperty(key)) ) {
+          obj[key] = arguments[i][key];
+        }
+      }
+    }
+    return obj;
   };
 
 
@@ -287,6 +353,7 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
